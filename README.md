@@ -11,7 +11,7 @@ Contact Dan Howarth with any questions
 
 # Dot product sum
 
-Consider a forest with N trees. There are $k = { N \choose 2}$ pairs. Given data point $x$, Let $p_i$ be the vector of class probabilities for the ith tree. The dot product sum is 
+Consider a forest with N trees. There are $k = { N \choose 2}$ pairs. Given data point $x$, Let $p_i$ be the column vector of class probabilities for the ith tree. The dot product sum is 
 the sum of dot products over these $k$ pairs:
 
-$$dps(x) = \sum_{i=1}^k \sum_{j\neq k}^k p_i^T p_i$$
+$$dps(x) = \sum_{i=1}^N \sum_{j > i}^N p_i^T p_j$$

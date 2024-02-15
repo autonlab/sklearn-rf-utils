@@ -100,10 +100,9 @@ class AutonSKRFWrapper:
 
         return n_in_bounds/n_nodes_touched
 
-    def write_legacy(self, fp_or_path, model_name="default_model", feature_names=None, ignore_bounds=False):
+    def write_legacy(self, fp_or_path, model_name="default_model", feature_names=None, ignore_bounds=False, for_ernie=False):
         """
-        Writes the random forest using the autonRF-C convention. Should only be used if you're using legacy ERNIE
-        C and Java inference code.
+        Writes the random forest using the autonRF-C convention.
 
         :param fp_or_path: Either a string to the output path, or a file pointer if already open.
         :param model_name: Name of model. Default is "default_model"
@@ -112,6 +111,7 @@ class AutonSKRFWrapper:
         :param ignore_bounds: Default False. If False then set_bounds() needs to be called prior.
             If True all bounds will be (0,0). True is used if you haven't called set_bounds
             and you don't care about calling inbounds()
+        :param for_ernie: Boolean with flags the addition of "SegmentInfo.FoldID" to the features list (ERNIE specific)
         :return: None
         """
 
@@ -150,7 +150,10 @@ class AutonSKRFWrapper:
             ))
 
         def write_header(rf):
-            feature_names_expanded = ["SegmentInfo.FoldID"] + feature_names + ["LABEL"]
+            if for_ernie:
+                feature_names_expanded = ["SegmentInfo.FoldID"] + feature_names + ["LABEL"]
+            else:
+                feature_names_expanded =  feature_names + ["LABEL"]
 
             header = "".join(
                 ("<bag_model>\n",

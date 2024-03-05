@@ -8,6 +8,10 @@ def pass_warn(*args, **kwargs):
 class AutonSKRFWrapper:
 
     def __init__(self, skrf):
+        """
+
+        :param skrf: an sklearn random forest
+        """
         self._skrf = skrf
         self._n_trees = len(skrf.estimators_)
         self._bounds_set = False
@@ -63,6 +67,17 @@ class AutonSKRFWrapper:
         return ent_sum/n_trees
 
     def set_bounds_data(self, bounds_data):
+        """
+        During training the autonRF saves the minimum and maximum value that passed through each node. This function
+        adds that metadata to this object. This information is used in the inbounds function.
+        It is also used to write out to the auton RF format.
+
+        To mimic autonRF's behavior, pass in the training data. You can pass in other data. For example,
+        you may want to calculate inbounds with respect to a single class in the training data.
+
+        :param bounds_data: (n_points, n_variables) data (numpy or pandas)
+        :return:
+        """
         bounds_data = np.array(bounds_data)
         self._bounds = [{} for _ in range(self._n_trees)]
         for (ti, tree) in enumerate(self._skrf.estimators_):
@@ -80,6 +95,17 @@ class AutonSKRFWrapper:
         self._bounds_set = True
 
     def inbounds(self, data):
+        """
+        For each data point, calculate the fraction of times that the data point was inbounds over all pass-throughed
+        nodes. A data point is inbounds for a given node if it is between the minimum and maximum for the corresponding
+        feature in the data that was passed to set_bounds and passed through that node. To mimic autonRFs behavior,
+        the training data is passed to set_bounds. In this case, a data point being inbounds for a node means that the
+        data point's value for the corresponding feature is within the minimum and maximum of the values that were used to
+        construct that node in training.
+
+        :param data:  (n_points, n_variables) data (numpy or pandas)
+        :return: (n_points,) numpy array, the inbounds rate for each data point
+        """
         if not self._bounds_set:
             raise Exception("set_bounds_data must be called before calling inbounds")
 
